@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no"/>
+	<title></title>
+	<!-- <link rel="stylesheet" href="photo.css" /> -->
+	<style>
+		html,
+		body{
+			height: 100%;
+			overflow: hidden;
+		}
+		body{
+			margin: 0;
+			background-color: rgba(216, 243, 239, 0.79);
+		}
+		#c{
+			box-shadow: 0 0 10px #ccc;
+			background-color: #000;
+		}
+		#c2{
+			position: absolute;
+			left: 0;
+			top: 0;
+		}
+		#pannel{
+			position: relative;
+			width: 100%;
+		}
+		#grayslider,
+		#lightnessslider,
+		#saturateslider{
+			width: 80%;
+			margin-left: 5vw;
+		}
+		#sliders .hide{
+			display: none;
+		}
+		#mode{
+			margin-top: 10px;
+			display: flex;
+		}
+		#mode>div{
+			font: 12px/1 "微软雅黑";
+			flex: 1;
+			text-align: center;
+		}
+		#mode .sel{
+			color: cornflowerblue;
+		}
+		#mode .disabled{
+			color: #ccc;
+		}
+	</style>
+	
+</head>
+<body>
+	<div id="pannel">
+		<canvas id="c"></canvas>
+		<!-- <canvas id="c2"></canvas> -->
+	</div>
+	<div id="sliders">
+		<div id="grayslider"></div>
+		<div id="lightnessslider"></div>
+		<div id="saturateslider"></div>
+	</div>
+	<div id="mode">
+		<div>
+			<span class="icon brightness"></span>	
+			<span>灰度</span>
+		</div>
+		<div>
+			<span class="icon sharpening"></span>	
+			<span>亮度</span>
+		</div>
+		<div>
+			<span class="icon image"></span>	
+			<span>饱和度</span>
+		</div>
+		<div class="disabled">
+			<span class="icon temperature"></span>
+			<span>色相</span>
+		</div>
+		<div class="disabled">
+			<span class="icon saturation"></span>
+			<span>对比度</span>
+		</div>
+	</div>
+	<script src='./index.js'></script>
+	<script src='./tool.js'></script>
+	<script>
+		var html = document.documentElement;
+		var htmlWidth = html.getBoundingClientRect().width;
+		html.style.fontSize = htmlWidth/16 +"px";
+		
+
+		// 载入图片
+    let c = document.getElementById('c')
+    let ctx = c.getContext('2d')
+    let screenW = window.innerWidth
+		let screenH = window.innerHeight
+		let rectData, oriData
+		
+
+    c.setAttribute('width', screenW)
+    c.setAttribute('height', screenH * 0.8)
+
+    let img = new Image()
+    img.src = './2.jpg'
+    img.onload = function() {
+      let imgL = 0,
+          imgT = 0,
+          imgW = 0,
+          imgH = 0;
+      let imgWHscale = img.width / img.height
+      let canvasWHscale = c.width / c. height
+      if ( imgWHscale > canvasWHscale) {
+        imgW = c.width
+        imgH = imgW / imgWHscale
+        imgL = 0
+        imgT = ( c.height - imgH ) / 2
+      } else {
+        imgH = c.height
+        imgW = imgH * imgWHscale
+        imgT = 0
+        imgL = ( c.width - imgW ) / 2
+      }
+			ctx.drawImage(img, imgL, imgT, imgW, imgH)
+			rectData = ctx.getImageData(0, 0, c.width, c.height);
+			oriData = Array.from(rectData.data) // 拷贝图像数据，保护元数据
+		}
+		
+		// slider
+		let grayslider = document.getElementById('grayslider')
+		let lightnessslider = document.getElementById('lightnessslider')
+		let saturateslider = document.getElementById('saturateslider')
+		let stateObj = {
+			g: 0,
+			l: 0,
+			s: 0
+		}
+		slider({
+			wrap: grayslider,
+			max: 100,
+			min: 0,
+			val: 0,
+			inputFn: dealWith(function(v) {
+				stateObj.g = v
+				calcImg(stateObj, oriData)
+			}, 200, 400),
+			extend: true
+		})
+		slider({
+			wrap: lightnessslider,
+			max: 50,
+			min: -50,
+			val: 0,
+			inputFn: dealWith(function(v) {
+				stateObj.l = v
+				calcImg(stateObj, oriData)
+			}, 200, 400),
+			extend: true
+		})
+		slider({
+			wrap: saturateslider,
+			max: 50,
+			min: -50,
+			val: 0,
+			inputFn: dealWith(function(v) {
+				stateObj.s = v
+				calcImg(stateObj, oriData)
+			}, 200, 400),
+			extend: true
+		})
+
+	
+		// 实现底部的 选项切换
+		tabBtn();
+
+
+		
+	</script>
+</body>
+</html>
