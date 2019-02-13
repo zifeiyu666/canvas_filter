@@ -100,7 +100,7 @@
     let ctx = c.getContext('2d')
     let screenW = window.innerWidth
 		let screenH = window.innerHeight
-		let rectData, oriData
+		let rectData, oriData;
 		
 
     c.setAttribute('width', screenW)
@@ -127,7 +127,7 @@
         imgL = ( c.width - imgW ) / 2
       }
 			ctx.drawImage(img, imgL, imgT, imgW, imgH)
-			rectData = ctx.getImageData(0, 0, c.width, c.height);
+			rectData = ctx.getImageData(rect.l, rect.t, rect.r - rect.l, rect.b - rect.t);
 			oriData = Array.from(rectData.data) // 拷贝图像数据，保护元数据
 		}
 		
@@ -140,7 +140,7 @@
 			l: 0,
 			s: 0
 		}
-		slider({
+		let gSlider = slider({
 			wrap: grayslider,
 			max: 100,
 			min: 0,
@@ -151,7 +151,7 @@
 			}, 200, 400),
 			extend: true
 		})
-		slider({
+		let lSlider = slider({
 			wrap: lightnessslider,
 			max: 50,
 			min: -50,
@@ -162,7 +162,7 @@
 			}, 200, 400),
 			extend: true
 		})
-		slider({
+		let sSlider = slider({
 			wrap: saturateslider,
 			max: 50,
 			min: -50,
@@ -196,6 +196,74 @@
 		drawRect({
 			c: c2,
 			rect
+		})
+
+		let finger = {
+			lastX: 0,
+			lastY: 0,
+			nowX: 0,
+			nowY: 0,
+			flag: ''
+		}
+
+		// 添加选区动作
+		c2.addEventListener('touchstart', function(e) {
+			({pageX: finger.lastX, pageY: finger.lastY} = e.changedTouches[0]);
+			// 重置
+			finger.flag = ''
+
+			if(finger.lastX > rect.l - minArea && finger.lastX < rect.l + minArea) {
+				finger.flag += 'l'
+			} else if (finger.lastX > rect.r - minArea && finger.lastX < rect.r + minArea) {
+				finger.flag += 'r'
+			}
+
+			if(finger.lastY > rect.t - minArea && finger.lastY < rect.t + minArea) {
+				finger.flag += 't'
+			} else if (finger.lastY > rect.b - minArea && finger.lastY < rect.b + minArea) {
+				finger.flag += 'b'
+			}
+
+			if(finger.lastX > rect.l + minArea && finger.lastX < rect.r - minArea && finger.lastY < rect.b - minArea && finger.lastY > rect.t + minArea) {
+				finger.flag += 'm'
+			}
+
+			console.log(finger.flag)
+
+		})
+
+		c2.addEventListener('touchmove', function(e) {
+			({pageX: finger.nowX, pageY: finger.nowY} = e.changedTouches[0])
+
+			if (finger.flag.includes('l')) {
+				rect.l += (finger.nowX - finger.lastX)
+				finger.lastX = finger.nowX
+			}
+			if (finger.flag.includes('r')) {
+				rect.r += (finger.nowX - finger.lastX)
+				finger.lastX = finger.nowX
+			}
+			if (finger.flag.includes('t')) {
+				rect.t += (finger.nowY - finger.lastY)
+				finger.lastY = finger.nowY
+			}
+			if (finger.flag.includes('b')) {
+				rect.b += (finger.nowY - finger.lastY)
+				finger.lastY = finger.nowY
+			}
+			
+			// 重绘选框
+			drawRect({
+				c: c2,
+				rect
+			})
+			
+			// 重新定义添加滤镜选区
+			rectData = ctx.getImageData(rect.l, rect.t, rect.r - rect.l, rect.b - rect.t);
+			oriData = Array.from(rectData.data) // 拷贝图像数据，保护元数据
+			gSlider.resetVal(0)
+			lSlider.resetVal(0)
+			sSlider.resetVal(0)
 		})
 
 

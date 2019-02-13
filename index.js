@@ -40,13 +40,13 @@ function calcImg(stateObj, oriData){
 		s += sPercent
 		var result = hslToRgb(h, s, l)
 
-		var [r, g, b] = result
+		var [r, g, b] = result;
 
 		rectData.data[i] = r
 		rectData.data[i+1] = g
 		rectData.data[i+2] = b
 	}
-	ctx.putImageData(rectData, 0, 0, 0, 0, c.width, c.height);
+	ctx.putImageData(rectData, rect.l, rect.t, 0, 0, c.width, c.height);
 	
 }
 

@@ -52,6 +52,14 @@ function slider( params ){
 	sliderDot.addEventListener( "touchstart",touchStart );
 	sliderDot.addEventListener( "touchmove",touchMove );
 	sliderDot.addEventListener( "touchend",touchEnd );
+	return {
+		resetVal: function(val) {
+			console.log('reset')
+			nowLeft = ((val-min)/(max-min))*maxLeft;
+			sliderDot.val = val;
+			sliderDot.style.left = `${nowLeft}px`;
+		}
+	}
 }
 	
 function dealWith( fn,delay,mastExec ){
