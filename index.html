@@ -58,7 +58,7 @@
 <body>
 	<div id="pannel">
 		<canvas id="c"></canvas>
-		<!-- <canvas id="c2"></canvas> -->
+		<canvas id="c2"></canvas>
 	</div>
 	<div id="sliders">
 		<div id="grayslider"></div>
@@ -144,7 +144,7 @@
 			wrap: grayslider,
 			max: 100,
 			min: 0,
-			val: 0,
+			val: 0,	
 			inputFn: dealWith(function(v) {
 				stateObj.g = v
 				calcImg(stateObj, oriData)
@@ -177,6 +177,27 @@
 	
 		// 实现底部的 选项切换
 		tabBtn();
+
+		// 绘制选取位置的方框
+		let c2 = document.getElementById('c2')
+		let ctx2 = c2.getContext('2d')
+		
+		c2.setAttribute('width', screenW)
+		c2.setAttribute('height', screenH * 0.8)
+
+		let rect = {l:50,
+			t:50,
+			r:200,
+			b:200
+		}
+
+		let minArea = 40
+
+		drawRect({
+			c: c2,
+			rect
+		})
+
 
 
 		
