@@ -195,7 +195,8 @@
 
 		drawRect({
 			c: c2,
-			rect
+			rect,
+			mask: false
 		})
 
 		let finger = {
@@ -228,7 +229,7 @@
 				finger.flag += 'm'
 			}
 
-			console.log(finger.flag)
+			e.preventDefault()
 
 		})
 
@@ -237,25 +238,80 @@
 
 			if (finger.flag.includes('l')) {
 				rect.l += (finger.nowX - finger.lastX)
+				
+				if (rect.l > (rect.r - minArea)) {
+					rect.l = (rect.r - minArea)
+				}
+
 				finger.lastX = finger.nowX
 			}
 			if (finger.flag.includes('r')) {
 				rect.r += (finger.nowX - finger.lastX)
+				
+				if (rect.r < (rect.l + minArea)) {
+					rect.r = (rect.l + minArea)
+				}
+
 				finger.lastX = finger.nowX
 			}
 			if (finger.flag.includes('t')) {
 				rect.t += (finger.nowY - finger.lastY)
+
+				if (rect.t > (rect.b - minArea)) {
+					rect.t = (rect.b - minArea)
+				}
+
 				finger.lastY = finger.nowY
 			}
 			if (finger.flag.includes('b')) {
 				rect.b += (finger.nowY - finger.lastY)
+
+				if (rect.b < (rect.t + minArea)) {
+					rect.b = (rect.t + minArea)
+				}
+
+				finger.lastY = finger.nowY
+			}
+			if (finger.flag.includes('m')) {
+				rect.l += (finger.nowX - finger.lastX)
+				rect.r += (finger.nowX - finger.lastX)
+				rect.t += (finger.nowY - finger.lastY)
+				rect.b += (finger.nowY - finger.lastY)
+				
+				// 预先存储宽高
+				let w = rect.r - rect.l
+				let h = rect.b - rect.t
+				
+				// 左侧位置限制
+				if (rect.l < 0) {
+					rect.l = 0
+					rect.r = w
+				}
+				// 右侧位置限制
+				if (rect.r > c2.width) {
+					rect.r = c2.width
+					rect.l = c2.width - w
+				}
+				// 右侧位置限制
+				if (rect.t < 0) {
+					rect.t = 0
+					rect.b = h
+				}
+				// 右侧位置限制
+				if (rect.b > c2.height) {
+					rect.t = c2.height - h
+					rect.b = c2.height
+				}
+				
+				finger.lastX = finger.nowX
 				finger.lastY = finger.nowY
 			}
 			
 			// 重绘选框
 			drawRect({
 				c: c2,
-				rect
+				rect,
+				mask: false
 			})
 			
 			// 重新定义添加滤镜选区
@@ -264,6 +320,8 @@
 			gSlider.resetVal(0)
 			lSlider.resetVal(0)
 			sSlider.resetVal(0)
+
+			e.preventDefault()
 		})
 
 

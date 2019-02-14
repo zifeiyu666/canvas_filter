@@ -54,7 +54,6 @@ function slider( params ){
 	sliderDot.addEventListener( "touchend",touchEnd );
 	return {
 		resetVal: function(val) {
-			console.log('reset')
 			nowLeft = ((val-min)/(max-min))*maxLeft;
 			sliderDot.val = val;
 			sliderDot.style.left = `${nowLeft}px`;
